@@ -1,7 +1,6 @@
 import { data_import } from "@prisma/client";
 import prisma from "../db/PrismaClient";
 import { Decimal } from "@prisma/client/runtime/library";
-import { channel } from "diagnostics_channel";
 
 
 export default async function getTopAnimal() : Promise<data_import | null> {
@@ -121,7 +120,6 @@ export async function getAnimalStatistics(id: number) {
         let found = false;
         Object.entries(animalData).sort().forEach(([key, value]) => {
             if(key!='id' && value != null && !found) {
-                console.log('key: ' + key + ", value: " + value);
                 earliestKnownStatistic = {
                     value: value,
                     year: key
@@ -132,7 +130,6 @@ export async function getAnimalStatistics(id: number) {
         });
         found = false;
         Object.entries(animalData).sort().reverse().forEach(([key, value]) => {
-            console.log('key: ' + key + ", value: " + value);
             if(key!='id' && value != null && !found) {
                 latestKnownStatistic = {
                     value: value,
@@ -158,7 +155,14 @@ export async function getAnimalStatistics(id: number) {
 
 }
 
-export type AnimalSelectedFields = {
+export type AnimalSelectedFieldsShallow = {
+    id: number;
+    latitude: null | string;
+    longitude: null | string;
+    system1: null | string;
+}
+
+export type AnimalSelectedFieldsDeep = {
     id: number; 
     common_name: null | string; 
     class: null | string; 
@@ -190,9 +194,11 @@ export type AnimalSelectedFields = {
     method: null | string; 
 }
 
-export function getAnimals() {
+export function getAnimalDeepFields(id: number) {
     try {
-        const animals = prisma.data_import.findMany({select: 
+        const animal = prisma.data_import.findFirst({
+            where: {id: id},
+            select: 
             {
                 // name
                 id: true, 
@@ -224,6 +230,48 @@ export function getAnimals() {
                 // population
                 units: true,
                 method: true
+            }});
+        return animal;
+    } catch (err) {
+        console.log(err);
+        return null;
+    }
+}
+
+export function getAnimals() {
+    try {
+        const animals = prisma.data_import.findMany({select: 
+            {
+                // name
+                id: true, 
+                // common_name: true, 
+                // class: true,
+                // order1: true,
+                // family: true,
+                // genus: true,
+                // species: true,
+                // subspecies: true,
+
+                // location
+                latitude: true, 
+                longitude: true,
+                // location: true, 
+                // country: true,
+                // region: true,
+
+                // environment
+                system1: true,
+                // t_realm: true,
+                // t_biome: true,
+                // m_realm: true,
+                // m_ocean: true,
+                // m_biome: true,
+                // fw_biome: true,
+                // fw_realm: true,
+
+                // population
+                // units: true,
+                // method: true
             }});
         return animals;
     } catch (err) {

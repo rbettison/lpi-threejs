@@ -17,7 +17,6 @@ export default function AnimalTrend() {
         try {
             fetch("/api/getAnimalTrend/" + animal.id).then(async (resp) => {
                 let respJson = await resp.json();
-                console.log(JSON.stringify(respJson));
                 setTrendData(respJson.statistics);
             });
         } catch (err) {

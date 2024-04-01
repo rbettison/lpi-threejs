@@ -5,9 +5,9 @@ import { animated } from "@react-spring/three"
 import { Color, InstancedMesh, Matrix4, Mesh, Object3D, RepeatWrapping, SRGBColorSpace, SphereGeometry, TextureLoader, Vector3 } from "three";
 import { CameraControls } from "@react-three/drei";
 import CanvasContext, { CanvasContextType } from "../contexts/CanvasContext";
-import { AnimalSelectedFields } from "../server/service/AnimalsService";
+import { AnimalSelectedFieldsShallow } from "../server/service/AnimalsService";
 
-export default function CubeComponent({datapoints} : {datapoints: AnimalSelectedFields[] | null}) {
+export default function CubeComponent({datapoints} : {datapoints: AnimalSelectedFieldsShallow[] | null}) {
 
     const colorMap = useLoader(TextureLoader, 'Albedo.jpg')
     colorMap.wrapS = RepeatWrapping;
@@ -25,6 +25,7 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
     
 
     const {setAnimal, animal, setAnimalImage} = useContext(CanvasContext) as CanvasContextType;
+    const [animalShallow, setAnimalShallow] = useState<AnimalSelectedFieldsShallow>(null!)
     let dummy = new Object3D();
     const tempColor = new Color();
 
@@ -36,7 +37,7 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
 
       datapoints?.forEach((point, index) => {
 
-        if(animal != point) {
+        if(animal===null || animal.id != point.id) {
           dummy.clear();
           instancedMeshRef.current.getMatrixAt(index, matrix);
           let position = new Vector3();
@@ -61,10 +62,10 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
       })
       instancedMeshRef.current.geometry.attributes.color.needsUpdate = true
       instancedMeshRef.current.instanceColor
-
-      if(datapoints != undefined && datapoints?.indexOf(animal) > 0) {
+     
+      if(datapoints != undefined && animal != null && datapoints?.indexOf(animalShallow) > 0) {
         dummy.clear();
-        let index = datapoints?.indexOf(animal);
+        let index = datapoints?.indexOf(animalShallow);
         if (index != undefined) {
           instancedMeshRef.current.getMatrixAt(index, matrix);
           let position = new Vector3();
@@ -157,11 +158,18 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
                 .applyAxisAngle(new Vector3(0,1,0), z);
               
               cameraControlsRef.current.setLookAt(vector.x, vector.y, vector.z, 0,0,0, true);
-              setAnimal(datapoints[index]);
-              setAnimalImage("");
-              fetch("/api/getAnimalPicture/" + datapoints[index].common_name).then(async (resp) => {
+
+              fetch("/api/getAnimalFieldsDeep/" + datapoints[index].id).then(async (resp) => {
                 let respJson = await resp.json();
-                if(resp.ok) setAnimalImage(respJson.image);
+                setAnimalImage("");
+                if (resp.ok) {
+                  setAnimal(respJson.animal);
+                  setAnimalShallow(datapoints[index]);
+                  fetch("/api/getAnimalPicture/" + respJson.animal.common_name).then(async (resp) => {
+                    let respJson = await resp.json();
+                    if(resp.ok) setAnimalImage(respJson.image);
+                  })
+                }
               })
             }
             

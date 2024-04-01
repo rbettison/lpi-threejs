@@ -1,10 +1,10 @@
 import { data_import } from "@prisma/client";
 import { createContext } from "react";
-import { AnimalSelectedFields } from "../server/service/AnimalsService";
+import { AnimalSelectedFieldsDeep } from "../server/service/AnimalsService";
 
 export type CanvasContextType = {
-    animal: AnimalSelectedFields;
-    setAnimal: (animal: AnimalSelectedFields) => void;
+    animal: AnimalSelectedFieldsDeep;
+    setAnimal: (animal: AnimalSelectedFieldsDeep) => void;
     animalImage: string;
     setAnimalImage: (animalImage: string) => void;
 }

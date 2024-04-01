@@ -1,10 +1,10 @@
 import { data_import } from "@prisma/client";
 import CanvasComponent from "./components/CanvasComponent";
-import getTopAnimal, { AnimalSelectedFields, getAnimals } from "./server/service/AnimalsService";
+import getTopAnimal, { AnimalSelectedFieldsShallow, getAnimals } from "./server/service/AnimalsService";
 
 export default async function Home() {
 
-  const animalsArr : AnimalSelectedFields[] | null = await getAnimals();
+  const animalsArr : AnimalSelectedFieldsShallow[] | null = await getAnimals();
   // const animalsArr : data_import[] = []
   // if(topAnimal != null) {
   //   animalsArr.push(topAnimal)
