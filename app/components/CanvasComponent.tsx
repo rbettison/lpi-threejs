@@ -7,10 +7,11 @@ import CanvasContext from "../contexts/CanvasContext";
 import AnimalSummary from "./AnimalSummary";
 import Summary from "./Summary";
 import Information from "./Information";
+import { AnimalSelectedFields } from "../server/service/AnimalsService";
 
-export default function CanvasComponent({datapoints} : {datapoints: data_import[]}) {
+export default function CanvasComponent({datapoints} : {datapoints: AnimalSelectedFields[] | null}) {
 
-    const [animal, setAnimal] = useState<data_import>(null!);
+    const [animal, setAnimal] = useState<AnimalSelectedFields>(null!);
     const [animalImage, setAnimalImage] = useState("");
     
     return (

@@ -29,8 +29,9 @@ export default function AnimalTrend() {
     return (
         <>
         {
-            trendData != undefined ?
+            trendData != undefined && trendData.change != null ?
             <>
+
             <div><span className="font-bold">Most recent recording:</span> {trendData.latestKnownStatistic.value} in {trendData.latestKnownStatistic.year}</div>
             <div><span className="font-bold">Earliest recording:</span> {trendData.earliestKnownStatistic.value} in {trendData.earliestKnownStatistic.year}</div>
             <div className={`font-bold text-2xl ${trendData.change < 0 ? "text-red-500" : "text-green-500"}`}>Trend: {trendData.change.toFixed(2)}%</div>

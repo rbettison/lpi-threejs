@@ -158,6 +158,38 @@ export async function getAnimalStatistics(id: number) {
 
 }
 
+export type AnimalSelectedFields = {
+    id: number; 
+    common_name: null | string; 
+    class: null | string; 
+    order1: null | string; 
+    family: null | string; 
+    genus: null | string; 
+    species: null | string; 
+    subspecies: null | string; 
+
+    // location
+    latitude: null | string;
+    longitude: null | string;
+    location: null | string; 
+    country: null | string; 
+    region: null | string; 
+
+    // environment
+    system1: null | string; 
+    t_realm: null | string; 
+    t_biome: null | string; 
+    m_realm: null | string; 
+    m_ocean: null | string; 
+    m_biome: null | string; 
+    fw_biome: null | string; 
+    fw_realm: null | string; 
+
+    // population
+    units: null | string; 
+    method: null | string; 
+}
+
 export function getAnimals() {
     try {
         const animals = prisma.data_import.findMany({select: 
