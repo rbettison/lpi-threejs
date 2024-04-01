@@ -38,7 +38,7 @@ export default function AnimalSummary() {
                         <AnimalTrend />
                     </>
                 }
-                {animalImage != "" && <img className="w-24 h-24 object-scale-down absolute bottom-5 right-5" src={animalImage} />}
+                {animalImage != "" && <img className="w-24 h-24 object-scale-down absolute sm:bottom-5 right-5 top-5" src={animalImage} />}
                 </>
 
             }

@@ -17,13 +17,13 @@ export default function CanvasComponent({datapoints} : {datapoints: AnimalSelect
     return (
         <>
         <CanvasContext.Provider value={{animal, setAnimal, animalImage, setAnimalImage}}>
-            <div className="flex flex-row max-h-screen">
-                <div className="bg-gradient-to-b from-blue-200 to-green-200 w-2/3">
+            <div className="flex sm:flex-row flex-col max-h-screen">
+                <div className="bg-gradient-to-b from-blue-200 to-green-200 sm:w-2/3 w-full h-[400px] sm:h-auto">
                     <Canvas camera={{position: [0, 0, 60]}}>
                         <CubeComponent datapoints={datapoints}/>
                     </Canvas>
                 </div>
-                <div className="w-1/3 h-screen">
+                <div className="sm:w-1/3 w-full h-screen sm:h-1/2">
                     <Information />
                 </div>
             </div>
