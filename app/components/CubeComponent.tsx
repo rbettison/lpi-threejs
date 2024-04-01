@@ -63,7 +63,7 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
       instancedMeshRef.current.geometry.attributes.color.needsUpdate = true
       instancedMeshRef.current.instanceColor
      
-      if(datapoints != undefined && animal != null && datapoints?.indexOf(animalShallow) > 0) {
+      if(datapoints != undefined && animalShallow != null && datapoints?.indexOf(animalShallow) > 0) {
         dummy.clear();
         let index = datapoints?.indexOf(animalShallow);
         if (index != undefined) {
@@ -158,13 +158,13 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
                 .applyAxisAngle(new Vector3(0,1,0), z);
               
               cameraControlsRef.current.setLookAt(vector.x, vector.y, vector.z, 0,0,0, true);
+              setAnimalShallow(datapoints[index]);
 
               fetch("/api/getAnimalFieldsDeep/" + datapoints[index].id).then(async (resp) => {
                 let respJson = await resp.json();
                 setAnimalImage("");
                 if (resp.ok) {
                   setAnimal(respJson.animal);
-                  setAnimalShallow(datapoints[index]);
                   fetch("/api/getAnimalPicture/" + respJson.animal.common_name).then(async (resp) => {
                     let respJson = await resp.json();
                     if(resp.ok) setAnimalImage(respJson.image);
