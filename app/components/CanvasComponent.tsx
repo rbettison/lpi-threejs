@@ -4,30 +4,28 @@ import CubeComponent from "./CubeComponent";
 import { Dispatch, SetStateAction, createContext, useState } from "react";
 import { data_import } from "@prisma/client";
 import CanvasContext from "../contexts/CanvasContext";
+import AnimalSummary from "./AnimalSummary";
+import Summary from "./Summary";
+import Information from "./Information";
 
 export default function CanvasComponent({datapoints} : {datapoints: data_import[]}) {
-    const [longitude, setLongitude] = useState<number>(0);
-    const [latitude, setLatitude] = useState<number>(0);
-    const [animal, setAnimal] = useState<string | null>("");
-    
 
+    const [animal, setAnimal] = useState<data_import>(null!);
+    const [animalImage, setAnimalImage] = useState("");
+    
     return (
         <>
-        <CanvasContext.Provider value={{animal, setAnimal}}>
-        <label>
-            longitude
-        </label>
-        <input onChange={(input) => setLongitude(Number(input.target.value))}>
-        </input>
-        <label>
-            latitude
-        </label>
-        <input onChange={(input) => setLatitude(Number(input.target.value))}>
-        </input>
-        {animal}
-        <Canvas>
-            <CubeComponent datapoints={datapoints} longitude={longitude} latitude={latitude}/>
-        </Canvas>
+        <CanvasContext.Provider value={{animal, setAnimal, animalImage, setAnimalImage}}>
+            <div className="flex flex-row max-h-screen">
+                <div className="bg-gradient-to-b from-blue-200 to-green-200 w-2/3">
+                    <Canvas camera={{position: [0, 0, 60]}}>
+                        <CubeComponent datapoints={datapoints}/>
+                    </Canvas>
+                </div>
+                <div className="w-1/3 h-screen">
+                    <Information />
+                </div>
+            </div>
         </CanvasContext.Provider>
         </>
     )
