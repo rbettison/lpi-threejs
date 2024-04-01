@@ -148,6 +148,7 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
           }}
           onClick={(event) => {
             if(datapoints != null) {
+              setAnimal(null!);
               let index = event.instanceId === undefined ? -1 : event.instanceId;
 
               let x = Math.PI * (Number(datapoints[index].latitude) - 90) / 180;
