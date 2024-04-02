@@ -29,6 +29,7 @@ export default function Globe({datapoints} : {datapoints: AnimalSelectedFieldsSh
     let dummy = new Object3D();
     const tempColor = new Color();
     const linearScale = d3.scaleLinear([20,50], [0.01,0.4]);
+    const geometrySizeScale = d3.scaleLinear([20, 50], [0.2, 2]);
 
     const colorArray = useMemo(() => Float32Array.from(new Array(datapoints?.length).fill(null).flatMap((_, i) => tempColor.setRGB(0,0,0).toArray())), [])
 
@@ -50,7 +51,8 @@ export default function Globe({datapoints} : {datapoints: AnimalSelectedFieldsSh
           position.setFromMatrixPosition(matrix);
 
           dummy.position.set(position.x, position.y, position.z);
-          dummy.scale.set(1,1,1);
+          let scale = geometrySizeScale(cameraDistance);
+          dummy.scale.set(scale, scale, scale);
           dummy.lookAt(new Vector3(0,0,0))
 
           dummy.updateMatrix();
@@ -79,8 +81,8 @@ export default function Globe({datapoints} : {datapoints: AnimalSelectedFieldsSh
           dummy.lookAt(new Vector3(0,0,0))
     
           dummy.rotateOnAxis(new Vector3(0, 0, 1), clock.elapsedTime);
-          dummy.scale.set(3,3,3); 
-          dummy.matrix.makeScale(1,1,1);
+          dummy.scale.set(10,10,10); 
+          // dummy.matrix.makeScale(1,1,1);
           dummy.updateMatrix();
     
           instancedMeshRef.current.setMatrixAt(index, dummy.matrix);
