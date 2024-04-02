@@ -1,23 +1,22 @@
 'use client'
-import { ThreeEvent, useFrame, useLoader} from "@react-three/fiber";
+import { useFrame, useLoader} from "@react-three/fiber";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { animated } from "@react-spring/three"
 import { Color, InstancedMesh, Matrix4, Mesh, Object3D, RepeatWrapping, SRGBColorSpace, SphereGeometry, TextureLoader, Vector3 } from "three";
 import { CameraControls } from "@react-three/drei";
-import CanvasContext, { CanvasContextType } from "../contexts/CanvasContext";
-import { AnimalSelectedFieldsShallow } from "../server/service/AnimalsService";
+import CanvasContext, { CanvasContextType } from "../../contexts/CanvasContext";
+import { AnimalSelectedFieldsShallow } from "../../server/service/AnimalsService";
+import * as d3 from "d3";
 
-export default function CubeComponent({datapoints} : {datapoints: AnimalSelectedFieldsShallow[] | null}) {
+export default function Globe({datapoints} : {datapoints: AnimalSelectedFieldsShallow[] | null}) {
 
     const colorMap = useLoader(TextureLoader, 'Albedo.jpg')
     colorMap.wrapS = RepeatWrapping;
     colorMap.offset.x = 0.75;
     colorMap.colorSpace = SRGBColorSpace;
     const bumpMap = useLoader(TextureLoader, 'Bump.jpg')
-    const myMesh = React.useRef<Mesh>(null!);
     const instancedMeshRef = React.useRef<InstancedMesh>(null!);
     const sphereRef = React.useRef<SphereGeometry>(null!);
-    const [hover, setHover] = useState(-1);
     const radius = 20;
     const translationRadiusVector = new Vector3(0, radius, 0);
     const zoomCameraDistance = new Vector3(0, radius + 5, 0);
@@ -26,14 +25,20 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
 
     const {setAnimal, animal, getAnimalDetails} = useContext(CanvasContext) as CanvasContextType;
     const [animalShallow, setAnimalShallow] = useState<AnimalSelectedFieldsShallow>(null!)
+    const [cameraDistance, setCameraDistance] = useState(20);
     let dummy = new Object3D();
     const tempColor = new Color();
+    const linearScale = d3.scaleLinear([20,50], [0.01,0.4]);
 
     const colorArray = useMemo(() => Float32Array.from(new Array(datapoints?.length).fill(null).flatMap((_, i) => tempColor.setRGB(0,0,0).toArray())), [])
 
     const cameraControlsRef = React.useRef<CameraControls>(null!);
 
     useFrame(({clock}) => {
+
+      let vector = new Vector3(0,0,0);
+      cameraControlsRef.current.getPosition(vector)
+      setCameraDistance(vector.distanceTo(new Vector3(0,0,0)));
 
       datapoints?.forEach((point, index) => {
 
@@ -56,8 +61,6 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
 
           instancedMeshRef.current.setMatrixAt(index, dummy.matrix);
 
-        } else if(hover === index && hover > 0) {
-          // tempColor.setRGB(10,10,10).toArray(colorArray, index * 3);
         }
       })
       instancedMeshRef.current.geometry.attributes.color.needsUpdate = true
@@ -79,9 +82,6 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
           dummy.scale.set(3,3,3); 
           dummy.matrix.makeScale(1,1,1);
           dummy.updateMatrix();
-
-          // tempColor.setRGB(0.5, 0.2, 0.1);
-          // instancedMeshRef.current.setColorAt(index, tempColor);
     
           instancedMeshRef.current.setMatrixAt(index, dummy.matrix);
         }
@@ -92,7 +92,6 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
       }
       if(datapoints!=null) instancedMeshRef.current.instanceColor?.addUpdateRange(0, datapoints.length);
       instancedMeshRef.current.geometry.attributes.color.needsUpdate = true
-      
     })
 
     useEffect(() => {
@@ -113,11 +112,9 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
         dummy.updateMatrix();
 
         instancedMeshRef.current?.setMatrixAt(index, dummy.matrix);
-        // instancedMeshRef.current?.setColorAt(index, new Color(Color.NAMES.azure));
       })
       instancedMeshRef.current.instanceMatrix.needsUpdate = true;
       instancedMeshRef.current.geometry.attributes.color.needsUpdate = true
-      // instancedMeshRef.current.geometry.attributes.color.needsUpdate = true
       instancedMeshRef.current.computeBoundingSphere();
       if(instancedMeshRef.current.instanceColor!=null) {
         instancedMeshRef.current.instanceColor.needsUpdate = true;
@@ -131,49 +128,37 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
         ref={cameraControlsRef}
         minDistance={21}
         maxDistance={50}
+        azimuthRotateSpeed={linearScale(cameraDistance)}
+        polarRotateSpeed={linearScale(cameraDistance)}
         />
         <ambientLight intensity={6} />
 
-        <animated.mesh ref={myMesh}>  
+        <animated.mesh>  
           <sphereGeometry ref={sphereRef} args={[radius, 64, 64]}>
           </sphereGeometry>
           <meshStandardMaterial map={colorMap} bumpMap={bumpMap} bumpScale={0.03} />
         </animated.mesh>
 
         <instancedMesh ref={instancedMeshRef} args={[undefined, undefined, datapoints!=null ? datapoints.length : 0]}
-          onPointerMove={(event: ThreeEvent<PointerEvent>) => {
-            event.stopPropagation();
-            let hoverValue = event.instanceId === undefined ? -1 : event.instanceId;
-            setHover(hoverValue);
-          }}
           onClick={(event) => {
             if(datapoints != null) {
               setAnimal(null!);
               let index = event.instanceId === undefined ? -1 : event.instanceId;
-
               let x = Math.PI * (Number(datapoints[index].latitude) - 90) / 180;
               let z = (Math.PI * Number(datapoints[index].longitude) / 180) ;
-  
               const vector = new Vector3(0,0,0).add(zoomCameraDistance)
                 .applyAxisAngle(new Vector3(1,0,0), x)
                 .applyAxisAngle(new Vector3(0,1,0), z);
-              
               cameraControlsRef.current.setLookAt(vector.x, vector.y, vector.z, 0,0,0, true);
               setAnimalShallow(datapoints[index]);
-              
               getAnimalDetails(datapoints[index].id);
-              
             }
-            
-          }}
-          onPointerLeave={(event) => {
-            setHover(-1)
           }}
           >
             <boxGeometry args={[0.1,0.1,0.1]}>
               <instancedBufferAttribute attach="attributes-color" args={[colorArray, 3, true, 1]} />
             </boxGeometry>
-            <meshBasicMaterial  />
+            <meshBasicMaterial />
         </instancedMesh>
       </>
     )
