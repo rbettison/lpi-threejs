@@ -1,13 +1,22 @@
-import { data_import } from "@prisma/client";
 import { createContext } from "react";
 import { AnimalSelectedFieldsDeep } from "../server/service/AnimalsService";
+
+export type TrendData = {
+    earliestKnownStatistic: {value: number, year: string};
+    latestKnownStatistic: {value: number, year: string};
+    change: number
+}
 
 export type CanvasContextType = {
     animal: AnimalSelectedFieldsDeep;
     setAnimal: (animal: AnimalSelectedFieldsDeep) => void;
     animalImage: string;
     setAnimalImage: (animalImage: string) => void;
+    trendData: TrendData;
+    setTrendData: (trendData: TrendData) => void;
+    getAnimalDetails: (id: number) => void;
 }
+
 const CanvasContext = createContext<CanvasContextType>({animal: 
     {
         id: 0,
@@ -36,6 +45,13 @@ const CanvasContext = createContext<CanvasContextType>({animal:
     }, 
     setAnimal: () => {}, 
     animalImage: "",
-    setAnimalImage: () => {}
+    setAnimalImage: () => {},
+    trendData: {
+        earliestKnownStatistic: {year: "", value: 0},
+        latestKnownStatistic: {year: "", value: 0},
+        change: 0
+    },
+    setTrendData: () => {},
+    getAnimalDetails: () => {}
 });
 export default CanvasContext;

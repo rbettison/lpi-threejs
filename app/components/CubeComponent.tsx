@@ -24,7 +24,7 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
     let matrix = new Matrix4();
     
 
-    const {setAnimal, animal, setAnimalImage} = useContext(CanvasContext) as CanvasContextType;
+    const {setAnimal, animal, getAnimalDetails} = useContext(CanvasContext) as CanvasContextType;
     const [animalShallow, setAnimalShallow] = useState<AnimalSelectedFieldsShallow>(null!)
     let dummy = new Object3D();
     const tempColor = new Color();
@@ -160,18 +160,9 @@ export default function CubeComponent({datapoints} : {datapoints: AnimalSelected
               
               cameraControlsRef.current.setLookAt(vector.x, vector.y, vector.z, 0,0,0, true);
               setAnimalShallow(datapoints[index]);
-
-              fetch("/api/getAnimalFieldsDeep/" + datapoints[index].id).then(async (resp) => {
-                let respJson = await resp.json();
-                setAnimalImage("");
-                if (resp.ok) {
-                  setAnimal(respJson.animal);
-                  fetch("/api/getAnimalPicture/" + respJson.animal.common_name).then(async (resp) => {
-                    let respJson = await resp.json();
-                    if(resp.ok) setAnimalImage(respJson.image);
-                  })
-                }
-              })
+              
+              getAnimalDetails(datapoints[index].id);
+              
             }
             
           }}

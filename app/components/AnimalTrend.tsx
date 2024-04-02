@@ -10,20 +10,7 @@ type TrendData = {
 }
 
 export default function AnimalTrend() {
-    const {animal} = useContext(CanvasContext) as CanvasContextType;
-    const [trendData, setTrendData] = useState<TrendData>();
-
-    useEffect(() => {
-        try {
-            fetch("/api/getAnimalTrend/" + animal.id).then(async (resp) => {
-                let respJson = await resp.json();
-                setTrendData(respJson.statistics);
-            });
-        } catch (err) {
-            console.log(err);
-        }
-        
-    }, [animal])
+    const {animal, trendData} = useContext(CanvasContext) as CanvasContextType;
 
     return (
         <>
