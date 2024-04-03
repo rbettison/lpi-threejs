@@ -81,8 +81,8 @@ export default function Globe({datapoints} : {datapoints: AnimalSelectedFieldsSh
           dummy.lookAt(new Vector3(0,0,0))
     
           dummy.rotateOnAxis(new Vector3(0, 0, 1), clock.elapsedTime);
-          dummy.scale.set(10,10,10); 
-          // dummy.matrix.makeScale(1,1,1);
+          let scale = geometrySizeScale(cameraDistance);
+          dummy.scale.set(scale * 3, scale *3, scale *3); 
           dummy.updateMatrix();
     
           instancedMeshRef.current.setMatrixAt(index, dummy.matrix);
